@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+
+  # ── DATABASE ──────────────────────────────────────────
+  commerce-postgres:
+    image: postgres:15
+    container_name: commerce-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: commerce_admin
+      POSTGRES_PASSWORD: commerce_pass
+      POSTGRES_DB: commerce_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - commerce-network
+
+  # ── REDIS ─────────────────────────────────────────────
+  commerce-redis:
+    image: redis:7-alpine
+    container_name: commerce-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - commerce-network
+
+  # ── ZIPKIN ────────────────────────────────────────────
+  commerce-zipkin:
+    image: openzipkin/zipkin
+    container_name: commerce-zipkin
+    ports:
+      - "9411:9411"
+    networks:
+      - commerce-network
+
+  # ── KAFKA (Phase 2 - commented out for now) ───────────
+  # commerce-zookeeper:
+  #   image: confluentinc/cp-zookeeper:latest
+  #   container_name: commerce-zookeeper
+  #   ports:
+  #     - "2181:2181"
+  #   environment:
+  #     ZOOKEEPER_CLIENT_PORT: 2181
+
+  # commerce-kafka:
+  #   image: confluentinc/cp-kafka:latest
+  #   container_name: commerce-kafka
+  #   ports:
+  #     - "9092:9092"
+  #   depends_on:
+  #     - commerce-zookeeper
+
+volumes:
+  postgres_data:
+
+networks:
+  commerce-network:
+    driver: bridge
