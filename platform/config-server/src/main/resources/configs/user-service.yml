@@ -1,0 +1,25 @@
+server:
+  port: 8081
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/commerce_db
+    username: commerce_admin
+    password: commerce_pass
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: user_schema
+    show-sql: true
+  flyway:
+    enabled: true
+    schemas: user_schema
+    locations: classpath:db/migration
+
+jwt:
+  secret: your-super-secret-key-change-in-production
+  expiration: 86400000

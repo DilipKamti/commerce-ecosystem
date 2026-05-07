@@ -1,0 +1,21 @@
+server:
+  port: 8082
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/commerce_db
+    username: commerce_admin
+    password: commerce_pass
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: product_schema
+    show-sql: true
+  flyway:
+    enabled: true
+    schemas: product_schema
+    locations: classpath:db/migration
