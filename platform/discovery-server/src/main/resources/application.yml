@@ -1,6 +1,7 @@
 spring:
   application:
-    name: user-service
+    name: discovery-server
+
   config:
     import: "configserver:http://localhost:8888"
 

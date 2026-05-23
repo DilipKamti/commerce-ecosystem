@@ -3,21 +3,19 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/commerce_db
-    username: commerce_admin
-    password: commerce_pass
-    driver-class-name: org.postgresql.Driver
+    url: jdbc:mysql://localhost:3306/commerce_db_auth?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: 1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
       ddl-auto: validate
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        default_schema: user_schema
+        dialect: org.hibernate.dialect.MySQLDialect
     show-sql: true
   flyway:
     enabled: true
-    schemas: user_schema
     locations: classpath:db/migration
 
 jwt:
