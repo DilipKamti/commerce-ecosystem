@@ -5,10 +5,15 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: user-service
+        - id: user-service-auth
           uri: lb://user-service
           predicates:
-            - Path=/api/v1/auth/**, /api/v1/users/**
+            - Path=/api/v1/auth/**
+
+        - id: user-service-users
+          uri: lb://user-service
+          predicates:
+            - Path=/api/v1/users/**
 
         - id: product-service
           uri: lb://product-service
@@ -19,3 +24,20 @@ spring:
           uri: lb://order-service
           predicates:
             - Path=/api/v1/orders/**
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+jwt:
+  secret: your-super-secret-key-change-in-production
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
