@@ -11,6 +11,7 @@ import io.commerce.user_service.exception.UnauthorizedException;
 import io.commerce.user_service.repository.RoleRepository;
 import io.commerce.user_service.repository.UserRepository;
 import io.commerce.user_service.security.JwtService;
+import io.micrometer.tracing.Tracer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ public class AuthService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final Tracer tracer;
 
     public UserResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -52,6 +54,13 @@ public class AuthService {
     public AuthResponse login(LoginRequest request) {
         User user = userRepository.findByEmailAndActiveTrue(request.getEmail())
                 .orElseThrow(() -> new UnauthorizedException("Invalid credentials"));
+
+        // Get current span and add tags
+        var span = tracer.currentSpan();
+        if (span != null) {
+            span.tag("userId", user.getId().toString());
+            span.tag("userEmail", user.getEmail());
+        }
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
             throw new UnauthorizedException("Invalid credentials");

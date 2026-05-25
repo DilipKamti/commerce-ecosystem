@@ -9,6 +9,7 @@ import io.commerce.order_service.exception.BadRequestException;
 import io.commerce.order_service.exception.ResourceNotFoundException;
 import io.commerce.order_service.exception.ServiceUnavailableException;
 import io.commerce.order_service.repository.OrderRepository;
+import io.micrometer.tracing.Tracer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

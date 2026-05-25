@@ -21,3 +21,11 @@ spring:
 jwt:
   secret: your-super-secret-key-change-in-production
   expiration: 86400000
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans
