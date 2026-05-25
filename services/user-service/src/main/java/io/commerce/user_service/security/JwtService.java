@@ -8,8 +8,10 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Component
 public class JwtService {
@@ -51,6 +53,14 @@ public class JwtService {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public String generateRefreshToken(){
+        return UUID.randomUUID().toString();
+    }
+
+    public LocalDateTime getRefreshTokenExpiry(){
+        return LocalDateTime.now().plusDays(7);
     }
 
 }

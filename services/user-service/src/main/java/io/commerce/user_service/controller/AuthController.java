@@ -1,8 +1,5 @@
 package io.commerce.user_service.controller;
-import io.commerce.user_service.dto.AuthResponse;
-import io.commerce.user_service.dto.LoginRequest;
-import io.commerce.user_service.dto.RegisterRequest;
-import io.commerce.user_service.dto.UserResponse;
+import io.commerce.user_service.dto.*;
 import io.commerce.user_service.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +31,15 @@ public class AuthController {
         return ResponseEntity.ok(Map.of(
                 "success", true,
                 "data", response
+        ));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<Map<String, Object>> refreshToken(@Valid @RequestBody RefreshTokenRequest request){
+        AuthResponse refreshToken = authService.refreshToken(request);
+        return ResponseEntity.ok(Map.of(
+                "success", true,
+                "data", refreshToken
         ));
     }
 }

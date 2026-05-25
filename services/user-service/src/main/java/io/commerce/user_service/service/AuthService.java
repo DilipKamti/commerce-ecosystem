@@ -1,9 +1,7 @@
 package io.commerce.user_service.service;
 
-import io.commerce.user_service.dto.AuthResponse;
-import io.commerce.user_service.dto.LoginRequest;
-import io.commerce.user_service.dto.RegisterRequest;
-import io.commerce.user_service.dto.UserResponse;
+import io.commerce.user_service.dto.*;
+import io.commerce.user_service.entity.RefreshToken;
 import io.commerce.user_service.entity.Role;
 import io.commerce.user_service.entity.User;
 import io.commerce.user_service.exception.ConflictException;
@@ -28,6 +26,7 @@ public class AuthService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final RefreshTokenService refreshTokenService;
     private final Tracer tracer;
 
     public UserResponse register(RegisterRequest request) {
@@ -76,12 +75,38 @@ public class AuthService {
                 roles
         );
 
+       RefreshToken refreshToken= refreshTokenService.createRefreshToken(user);
+
         return AuthResponse.builder()
                 .accessToken(token)
                 .tokenType("Bearer")
-                .expiresIn(86400000)
+                .refreshToken(refreshToken.getToken())
+                .expiresIn(3600000)
                 .build();
-        }
+
+    }
+
+    public AuthResponse refreshToken(RefreshTokenRequest request) {
+        RefreshToken refreshToken = refreshTokenService.rotateRefreshToken(request.getRefreshToken());
+
+        List<String> roles = refreshToken.getUser().getRoles().stream()
+                .map(Role::getName)
+                .collect(Collectors.toList());
+
+        String token = jwtService.generateToken(
+                refreshToken.getUser().getId().toString(),
+                refreshToken.getUser().getEmail(),
+                roles
+        );
+
+        return AuthResponse.builder()
+                .accessToken(token)
+                .tokenType("Bearer")
+                .refreshToken(refreshToken.getToken())
+                .expiresIn(3600000)
+                .build();
+    }
+
 
     private UserResponse mapToUserResponse(User user) {
         return UserResponse.builder()
