@@ -1,0 +1,42 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://host.docker.internal:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: user-service
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          service: user-service
+          __path__: /logs/user-service*.log
+
+  - job_name: product-service
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          service: product-service
+          __path__: /logs/product-service*.log
+
+  - job_name: order-service
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          service: order-service
+          __path__: /logs/order-service*.log
+
+  - job_name: api-gateway
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          service: api-gateway
+          __path__: /logs/api-gateway*.log

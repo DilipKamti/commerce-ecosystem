@@ -18,6 +18,19 @@ spring:
     enabled: true
     locations: classpath:db/migration
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: dilipistesting@gmail.com
+    password: nqdbshkfpzhkenjh
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
 jwt:
   secret: your-super-secret-key-change-in-production
   expiration: 86400000
@@ -29,3 +42,6 @@ management:
   zipkin:
     tracing:
       endpoint: http://localhost:9411/api/v2/spans
+
+logging:
+  config: classpath:logback-spring.xml

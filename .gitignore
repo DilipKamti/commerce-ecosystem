@@ -16,6 +16,8 @@ target/
 # Logs
 *.log
 logs/
+logs/*.log
+logs/**/*.log
 
 # OS
 .DS_Store
