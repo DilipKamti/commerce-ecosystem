@@ -1,6 +1,7 @@
 package io.commerce.api_gateway.filter;
 
 import io.commerce.api_gateway.security.JwtService;
+import io.micrometer.tracing.Tracer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -15,6 +16,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -22,6 +24,7 @@ import java.util.List;
 public class JwtAuthFilter implements GlobalFilter, Ordered {
 
     private final JwtService jwtService;
+    private final Tracer tracer;
 
     // Paths that do NOT require JWT
     private static final List<String> PUBLIC_PATHS = List.of(
@@ -39,6 +42,18 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getURI().getPath();
+        String method = exchange.getRequest().getMethod().name();
+
+        log.info("→ Gateway request: {} {}", method, path);
+
+        // Generate correlation ID from current trace
+        String correlationId = tracer.currentSpan() != null
+                ? tracer.currentSpan().context().traceId()
+                : UUID.randomUUID().toString();
+
+        // Add to response headers so clients can report it
+        exchange.getResponse().getHeaders()
+                .add("X-Correlation-Id", correlationId);
 
         // Skip JWT check for public paths
         if (isPublicPath(path)) {
@@ -64,12 +79,13 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
         String userId = jwtService.extractUserId(token);
         Object roles = jwtService.extractRoles(token);
 
-        log.debug("Authenticated request — userId: {}, path: {}", userId, path);
+        log.info("Authenticated request — userId={}, path={}, correlationId={}", userId, path, correlationId);
 
         // Inject X-User-Id and X-User-Roles headers
         ServerHttpRequest mutatedRequest = request.mutate()
                 .header("X-User-Id", userId)
                 .header("X-User-Roles", roles != null ? roles.toString() : "")
+                .header("X-Correlation-Id", correlationId)
                 .build();
 
         return chain.filter(exchange.mutate().request(mutatedRequest).build());
